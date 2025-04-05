@@ -92,7 +92,7 @@ public class WordController {
             String body = response.body();
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> json = objectMapper.readValue(body, new TypeReference<Map<String, Object>>() {});
-            List<String> translations = (List<String>) json.get("translations");
+            //List<String> translations = (List<String>) json.get("translations");
             //addToDB(data.get("word"), translations);
             return response.body();
 
