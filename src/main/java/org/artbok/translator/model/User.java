@@ -1,23 +1,20 @@
 package org.artbok.translator.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
     @Column
-    public String code;
+    public String email;
 
-    @Column
-    public String name;
+    public User() {}
+    public User(String email) {
+        this.email = email;
+    }
 }

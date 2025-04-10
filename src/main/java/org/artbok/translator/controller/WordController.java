@@ -2,12 +2,10 @@ package org.artbok.translator.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.artbok.translator.model.User;
-import org.artbok.translator.model.Word;
-import org.artbok.translator.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.artbok.translator.repository.WordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,23 +16,26 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 
+
 @RestController
+@RequiredArgsConstructor
 public class WordController {
 
     public record Test(String id, String word) {}
 
-    @Autowired
-    WordRepository wordRepository;
+    private final WordRepository wordRepository;
+
+    @Value("${app.api-key}")
+    String apiKey;
 
 
-    public void addToDB(String word, List<String> translations) {
-        String translationsSplitted = String.join(", ", translations);
-        var wordObj = Word.builder().owner("temjik").word(word).translation(translationsSplitted).build();
-        wordRepository.save(wordObj);
-    }
+//    public void addToDB(String word, List<String> translations) {
+//        String translationsSplitted = String.join(", ", translations);
+//        var wordObj = Word.builder().owner(1L).word(word).translation(translationsSplitted).build();
+//        wordRepository.save(wordObj);
+//    }
 
     @PostMapping("/translate")
     public String getTranslation(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
@@ -47,7 +48,6 @@ public class WordController {
 
 
     public String sendToGemini(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
-        String apiKey = "AIzaSyBXm6HT79AAZZUxSxtKKZpFtsrahLIc9Uw";
         String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
 
         String requestBody = """

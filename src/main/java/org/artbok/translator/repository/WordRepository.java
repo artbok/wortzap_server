@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface WordRepository extends CrudRepository<Word, Long> {
-    //    Optional<User> findByCode(String code);
+    //    Optional<User> findByCode(String email);
 }

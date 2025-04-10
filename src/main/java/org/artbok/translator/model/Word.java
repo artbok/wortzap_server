@@ -16,12 +16,11 @@ public class Word {
     public Long id;
 
     @Column
-    public String owner;
+    public Long owner;
 
     @Column
     public String word;
 
     @Column
     public String translation;
-
 }

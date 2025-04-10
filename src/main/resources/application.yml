@@ -3,7 +3,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: db12345
+    password: postgres
 
   jpa:
     database: postgresql
@@ -17,3 +17,7 @@ spring:
         order_inserts: true
         order_updates: true
         batch_versioned_data: true
+
+app:
+  api-key: ${API_KEY:DEFINE-YOUR-KEY}
+  default: ${DEFAULT_LANG:ENG}
