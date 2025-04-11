@@ -4,7 +4,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: postgres
-
   jpa:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -17,7 +16,21 @@ spring:
         order_inserts: true
         order_updates: true
         batch_versioned_data: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: help.sprechai@gmail.com
+    password: ${GMAIL_KEY}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 
 app:
   api-key: ${API_KEY:DEFINE-YOUR-KEY}
   default: ${DEFAULT_LANG:ENG}
+
+
