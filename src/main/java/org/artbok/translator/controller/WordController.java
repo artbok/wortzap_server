@@ -1,15 +1,5 @@
 package org.artbok.translator.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.artbok.translator.repository.WordRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,6 +8,13 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +22,7 @@ public class WordController {
 
     public record Test(String id, String word) {}
 
-    private final WordRepository wordRepository;
+    //private final WordRepository wordRepository;
 
     @Value("${app.api-key}")
     String apiKey;
@@ -89,9 +86,9 @@ public class WordController {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> json = objectMapper.readValue(body, new TypeReference<Map<String, Object>>() {});
+            //String body = response.body();
+            //ObjectMapper objectMapper = new ObjectMapper();
+            //Map<String, Object> json = objectMapper.readValue(body, new TypeReference<Map<String, Object>>() {});
             //List<String> translations = (List<String>) json.get("translations");
             //addToDB(data.get("word"), translations);
             return response.body();

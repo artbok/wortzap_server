@@ -1,6 +1,5 @@
 package org.artbok.translator.controller;
 
-
 import lombok.RequiredArgsConstructor;
 import org.artbok.translator.model.User;
 import org.artbok.translator.service.UserService;
