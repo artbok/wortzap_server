@@ -1,6 +1,5 @@
 package org.artbok.translator.model;
 import jakarta.persistence.*;
-import java.time.OffsetDateTime;
 
 
 @Entity
@@ -14,17 +13,18 @@ public class User {
     public String email;
 
     @Column
-    public String tempCode;
-
-    @Column
-
-    public OffsetDateTime requestDate;
-
-    @Column
     public String password;
 
+    @Column
+    public Boolean verified = false;
+
+    @Column
+    public String nativeLanguage;
+
     public User() {}
-    public User(String email) {
+    public User(String email, String password, String nativeLanguage) {
         this.email = email;
+        this.password = password;
+        this.nativeLanguage = nativeLanguage;
     }
 }

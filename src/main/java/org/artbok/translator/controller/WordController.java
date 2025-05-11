@@ -1,5 +1,6 @@
 package org.artbok.translator.controller;
 
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -37,47 +38,48 @@ public class WordController {
     @PostMapping("/translate")
     public String getTranslation(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
 
-        String response = sendToGemini(data);
-
-        return response;
+        return sendToGemini(data);
     }
 
 
-
     public String sendToGemini(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
-        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
-
-        String requestBody = """
-                {"contents": [{
-                      "parts": [
-                        {"text": "Translate word '""" + data.get("word") + """
-                       ' from German to Russian and provide 5 example sentences using this word"}
-                      ]
-                    }],
-                    "generationConfig": {
-                        "response_mime_type": "application/json",
-                        "response_schema": {
-                            "type": "OBJECT",
-                            "properties": {
-                                "translations": {\s
-                                    "type": "ARRAY",
-                                    "description": "List of Russian translations of the word",
-                                    "items": { "type": "STRING", "description": "Russian translation of the word", "nullable": false }
-                                },
-                                "examples": {\s
-                                    "type": "ARRAY",
-                                    "description": "List of example sentences with this word in German",
-                                    "items": { "type": "STRING", "description": "Example sentence with this word in German", "nullable": false }
-                                },
-                                "translationsOfExamples": {\s
-                                    "type": "ARRAY",
-                                    "description": "List of translations into Russian of the example sentences",
-                                    "items": { "type": "STRING", "description": "Russian translation of the sentence", "nullable": false }
-                                }
-                            }
-                        }
-                    }}""";
-//"word": { "type": "STRING", "description": "if the word is a noun, add the correct German article (der, die, das) before it. Do not add unnecessary words. If the word is conjugated, provide the base form as well."
+        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + apiKey;
+        String text = data.get("text");
+        String fromLang = data.get("fromLang");
+        String toLang = data.get("toLang");
+        String schema = """
+        {"contents": [{
+              "parts": [
+                {"text": "Translate the word '%1$s' from %2$s to %3$s. Your response MUST be a JSON object adhering to the provided schema. Populate the 'translations' field with the translation of the word. Populate the 'examples' field with exactly three example sentences using the word '%1$s' in %2$s. Populate the 'exampleTranslations' field with the corresponding translations of these sentences into %3$s. All fields ('translations', 'examples', 'exampleTranslations') are mandatory and must be included in your response."}
+              ]
+            }],
+            "generationConfig": {
+                "response_mime_type": "application/json",
+                "response_schema": {
+                     "type": "OBJECT",
+                     "properties": {
+                         "translations": {
+                             "type": "ARRAY",
+                             "items": { "type": "STRING" },
+                             "description": "The translation(s) of the input word."
+                         },
+                         "examples": {
+                             "type": "ARRAY",
+                             "items": { "type": "STRING" },
+                             "description": "Exactly three example sentences using the original word in its original language (%2$s)."
+                         },
+                         "exampleTranslations": {
+                             "type": "ARRAY",
+                             "items": { "type": "STRING" },
+                             "description": "The translations of the three example sentences into the target language (%3$s), corresponding to the 'examples' array."
+                         }
+                     },
+                     "required": ["translations", "examples", "exampleTranslations"]
+                 }
+            }
+            }""";
+        String requestBody = String.format(schema, text, fromLang, toLang);
+        System.out.println(requestBody);
         try (HttpClient client = HttpClient.newBuilder().build()) {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
@@ -86,11 +88,7 @@ public class WordController {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            //String body = response.body();
-            //ObjectMapper objectMapper = new ObjectMapper();
-            //Map<String, Object> json = objectMapper.readValue(body, new TypeReference<Map<String, Object>>() {});
-            //List<String> translations = (List<String>) json.get("translations");
-            //addToDB(data.get("word"), translations);
+            System.out.println(response.body());
             return response.body();
 
         }

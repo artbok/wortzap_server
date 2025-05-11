@@ -7,9 +7,6 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "words")
-@Getter
-@Setter
-@Builder
 public class Word {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
