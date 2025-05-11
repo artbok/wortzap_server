@@ -1,4 +1,4 @@
-package org.artbok.translator.model;
+package org.artbok.wortzap_server.model;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;

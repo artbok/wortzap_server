@@ -1,4 +1,4 @@
-package org.artbok.translator.controller;
+package org.artbok.wortzap_server.controller;
 
 
 import java.io.IOException;

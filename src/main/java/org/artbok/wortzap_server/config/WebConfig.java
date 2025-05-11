@@ -1,4 +1,4 @@
-package org.artbok.translator.config;
+package org.artbok.wortzap_server.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

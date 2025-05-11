@@ -1,6 +1,6 @@
-package org.artbok.translator.repository;
+package org.artbok.wortzap_server.repository;
 
-import org.artbok.translator.model.User;
+import org.artbok.wortzap_server.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,8 +1,8 @@
-package org.artbok.translator.service;
+package org.artbok.wortzap_server.service;
 
 
-import org.artbok.translator.model.User;
-import org.artbok.translator.repository.UserRepository;
+import org.artbok.wortzap_server.model.User;
+import org.artbok.wortzap_server.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.artbok.translator;
+package org.artbok.wortzap_server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

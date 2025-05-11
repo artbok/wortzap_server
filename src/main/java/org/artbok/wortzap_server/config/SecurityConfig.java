@@ -1,6 +1,6 @@
-package org.artbok.translator.config;
+package org.artbok.wortzap_server.config;
 
-import org.artbok.translator.service.CustomUserDetailsService;
+import org.artbok.wortzap_server.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

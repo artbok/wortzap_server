@@ -1,9 +1,6 @@
-package org.artbok.translator.model;
+package org.artbok.wortzap_server.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "words")

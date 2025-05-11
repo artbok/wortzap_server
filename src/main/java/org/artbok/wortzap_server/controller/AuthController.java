@@ -1,12 +1,12 @@
-package org.artbok.translator.controller;
+package org.artbok.wortzap_server.controller;
 
 
 import java.util.*;
 import lombok.RequiredArgsConstructor;
-import org.artbok.translator.model.TempCode;
-import org.artbok.translator.model.User;
-import org.artbok.translator.repository.TempCodeRepository;
-import org.artbok.translator.repository.UserRepository;
+import org.artbok.wortzap_server.model.TempCode;
+import org.artbok.wortzap_server.model.User;
+import org.artbok.wortzap_server.repository.TempCodeRepository;
+import org.artbok.wortzap_server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

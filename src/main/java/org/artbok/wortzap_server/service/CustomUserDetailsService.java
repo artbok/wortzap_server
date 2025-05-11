@@ -1,9 +1,9 @@
-package org.artbok.translator.service;
+package org.artbok.wortzap_server.service;
 
 import java.util.Set;
 
-import org.artbok.translator.model.User;
-import org.artbok.translator.repository.UserRepository;
+import org.artbok.wortzap_server.model.User;
+import org.artbok.wortzap_server.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
