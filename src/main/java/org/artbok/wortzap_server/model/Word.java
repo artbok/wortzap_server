@@ -33,9 +33,10 @@ public class Word {
     @Column
     public String translation;
 
-    @Column String translationPlural;
+    @Column
+    public String translationPlural;
 
-
+    public Word() {}
     public Word(Long ownerId, String wordLanguage, String wordArticle, String word, String wordPlural, String translationLanguage, String translationArticle, String translation, String translationPlural) {
         this.ownerId = ownerId;
         this.wordLanguage = wordLanguage;

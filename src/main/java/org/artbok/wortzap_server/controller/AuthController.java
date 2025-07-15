@@ -25,40 +25,16 @@ public class AuthController {
     private final UserRepository userRepository;
     private final TempCodeRepository tempCodeRepository;
 
-    @PostMapping("/validate")
-    public String validate(@RequestBody Map<String, String> requestBody) {
-        String email = requestBody.get("email");
-        String password = requestBody.get("password");
-        User existingUser = userRepository.findByEmail(email);
-        if (existingUser != null) {
-            if (BCrypt.checkpw(password, existingUser.password)) {
-                if (existingUser.verified) {
-                    return "verified";
-                } else {
-                    return "unverified";
-                }
-            }
-        }
-        return "wrongCredentials";
-    }
 
-
-    @RequestMapping("/register")
     @PostMapping
-    public String register(@RequestBody Map<String, String> requestBody) {
+    public String auth(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
         String password = requestBody.get("password");
-        String encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        String nativeLanguage = requestBody.get("nativeLanguage");
         User existingUser = userRepository.findByEmail(email);
-        if (existingUser != null) {
-            return "user with that email already exists";
-        } else {
-            User newUser = new User(email, encodedPassword, nativeLanguage);
-            userRepository.save(newUser);
-            sendEmailCode(requestBody);
-            return "success";
+        if (existingUser != null && BCrypt.checkpw(password, existingUser.password)) {
+            return "AUTHORIZED";
         }
+        return "WRONG_CREDENTIALS";
     }
 
     @RequestMapping("/send-email-code")
@@ -66,41 +42,52 @@ public class AuthController {
     public String sendEmailCode(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
         User user = userRepository.findByEmail(email);
-        if (user == null) {
-            return "User not found";
+        if (user != null) {
+            return "USER_ALREADY_EXISTS";
         }
-        Random random = new Random();
-        String code = String.valueOf(random.nextInt(899999) + 100000);
-        TempCode tempCode = new TempCode(email, code, OffsetDateTime.now(ZoneOffset.UTC));
-        tempCodeRepository.save(tempCode);
-        try {
-            SimpleMailMessage msg = new SimpleMailMessage();
-            msg.setFrom("help.sprechai@gmail.com");
-            msg.setTo(email);
-            msg.setSubject("Your SprechAI Login Code");
-            msg.setText("You've requested a login code for SprechAI. Please use the following code to access your account:\n\n" +
-                     code +
-                    "\n\nThis code is valid for a limited time. If you did not request this code, you can safely ignore this email.");
-            mailSender.send(msg);
-        } catch (Exception e) {
-            System.out.println(e);
+        OffsetDateTime sevenMinutesAgo = OffsetDateTime.now().minusMinutes(7);
+        Optional<TempCode> tmpCode = tempCodeRepository.findByEmailAndRequestDateAfter(email, sevenMinutesAgo);
+        if (tmpCode.isEmpty()) {
+            Random random = new Random();
+            String code = String.valueOf(random.nextInt(899999) + 100000);
+            TempCode tempCode = new TempCode(email, code, OffsetDateTime.now(ZoneOffset.UTC));
+            tempCodeRepository.save(tempCode);
+            try {
+                SimpleMailMessage msg = new SimpleMailMessage();
+                msg.setFrom("help.sprechai@gmail.com");
+                msg.setTo(email);
+                msg.setSubject("Your SprechAI Login Code");
+                msg.setText("You've requested a login code for SprechAI. Please use the following code to access your account:\n\n" +
+                        code +
+                        "\n\nThis code is valid for a limited time. If you did not request this code, you can safely ignore this email.");
+                mailSender.send(msg);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
-        return "Success";
+        return "SUCCESS";
     }
 
-    @RequestMapping("/submit-email-code")
+    @RequestMapping("/register")
     @PostMapping
-    public String submitCode(@RequestBody Map<String, String> requestBody) {
+    public String register(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
+        String password = requestBody.get("password");
         String code = requestBody.get("code");
-        User user = userRepository.findByEmail(email);
         OffsetDateTime sevenMinutesAgo = OffsetDateTime.now().minusMinutes(7);
         Optional<TempCode> tempCode = tempCodeRepository.findByEmailAndCodeAndRequestDateAfter(email, code, sevenMinutesAgo);
         if (tempCode.isPresent()) {
-            user.verified = true;
-            userRepository.save(user);
-            return "success";
+            String encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+            String nativeLanguage = requestBody.get("nativeLanguage");
+            User existingUser = userRepository.findByEmail(email);
+            if (existingUser != null) {
+                return "USER_ALREADY_EXISTS";
+            } else {
+                User newUser = new User(email, encodedPassword, nativeLanguage);
+                userRepository.save(newUser);
+                return "SUCCESS";
+            }
         }
-        return "wrongCode";
+        return "WRONG_CODE";
     }
 }

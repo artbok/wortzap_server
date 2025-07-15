@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
-        if (user == null || !user.verified) {
+        if (user == null) {
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
         Set<SimpleGrantedAuthority> authorities = Set.of(new SimpleGrantedAuthority("USER")); // You might fetch roles from the database later

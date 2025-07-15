@@ -16,5 +16,9 @@ public interface TempCodeRepository extends JpaRepository<TempCode, Long> {
             String code,
             OffsetDateTime afterDate
     );
+    Optional<TempCode> findByEmailAndRequestDateAfter(
+            String email,
+            OffsetDateTime afterDate
+    );
 
 }

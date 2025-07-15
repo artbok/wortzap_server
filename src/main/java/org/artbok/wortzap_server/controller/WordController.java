@@ -7,14 +7,17 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.artbok.wortzap_server.dto.UserWordsResponse;
 import org.artbok.wortzap_server.model.User;
 import org.artbok.wortzap_server.model.Word;
 import org.artbok.wortzap_server.repository.UserRepository;
 import org.artbok.wortzap_server.repository.WordRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +38,23 @@ public class WordController {
     @Value("${app.api-key}")
     String apiKey;
 
+
+    @PostMapping("/words")
+    public UserWordsResponse words(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        String language = data.get("language");
+        List<Word> words;
+        if (Objects.equals(language, "All")) {
+            words = wordRepository.findByOwnerId(user.id);
+        } else {
+            words = wordRepository.findByOwnerIdAndWordLanguage(user.id, data.get("language"));
+        }
+        return new UserWordsResponse(user.getStudiedLanguages(), words);
+    }
+
+
     @PostMapping("/translate")
     public String getTranslation(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
 
@@ -43,7 +63,8 @@ public class WordController {
 
 
     public String sendToGemini(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
-        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + apiKey;
+        System.out.println("bebra");
+        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=AIzaSyBXm6HT79AAZZUxSxtKKZpFtsrahLIc9Uw";
         String text = data.get("text");
         String fromLang = data.get("fromLang");
         String toLang = data.get("toLang");
@@ -156,11 +177,11 @@ public class WordController {
             } else if (Objects.equals(user.nativeLanguage, toLang)) {
                 word = new Word(
                         user.id,
-                        toLang,
+                        fromLang,
                         wordObject.getString("baseFormGenderArticle"),
                         wordObject.getString("baseForm"),
                         wordObject.getString("baseFormPlural"),
-                        fromLang,
+                        toLang,
                         wordObject.getString("translatedBaseFormGenderArticle"),
                         wordObject.getString("translatedBaseForm"),
                         wordObject.getString("translatedBaseFormPlural")
@@ -171,4 +192,6 @@ public class WordController {
 
         }
     }
+
+    
 }

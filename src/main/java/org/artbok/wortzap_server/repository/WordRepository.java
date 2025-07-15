@@ -4,7 +4,10 @@ import org.artbok.wortzap_server.model.Word;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface WordRepository extends CrudRepository<Word, Long> {
-    //    Optional<User> findByCode(String email);
+    List<Word> findByOwnerIdAndWordLanguage(Long ownerId, String wordLanguage);
+    List<Word> findByOwnerId(Long ownerId);
 }
