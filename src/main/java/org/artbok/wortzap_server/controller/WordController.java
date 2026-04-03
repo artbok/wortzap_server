@@ -7,25 +7,29 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.artbok.wortzap_server.dto.UserWordsResponse;
+import org.artbok.wortzap_server.dto.WordsForLearningResponse;
 import org.artbok.wortzap_server.model.User;
 import org.artbok.wortzap_server.model.Word;
 import org.artbok.wortzap_server.repository.UserRepository;
 import org.artbok.wortzap_server.repository.WordRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.json.JSONObject;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -47,14 +51,73 @@ public class WordController {
         String language = data.get("language");
         List<Word> words;
         if (Objects.equals(language, "All")) {
-            words = wordRepository.findByOwnerId(user.id);
+            words = wordRepository.findByOwnerIdOrderByIdAsc(user.id);
         } else {
-            words = wordRepository.findByOwnerIdAndWordLanguage(user.id, data.get("language"));
+            words = wordRepository.findByOwnerIdAndWordLanguageOrderByIdAsc(user.id, data.get("language"));
         }
         return new UserWordsResponse(user.getStudiedLanguages(), words);
     }
 
+    public static List<Word> sortWordsStream(List<Word> words) {
+        return words.stream()
+                .sorted(Comparator.comparingInt((Word word) -> word.masteryLevel).reversed()
+                        .thenComparingLong(word -> word.id))
+                .collect(Collectors.toList());
+    }
 
+
+    @PostMapping("/set-mastery-level")
+    public String setMasteryLevel(@RequestBody Map<String, String> data) {
+        Long id = Long.parseLong(data.get("id"));
+        Word word = wordRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found with ID: " + id));
+        word.masteryLevel = Integer.parseInt(data.get("masteryLevel"));
+        word.lastTimeStudied = OffsetDateTime.now();
+        wordRepository.save(word);
+        return "OK";
+    }
+
+    @PostMapping("/delete")
+    public String delete(@RequestBody Map<String, String> data) {
+        Long id = Long.parseLong(data.get("id"));
+        Word word = wordRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found with ID: " + id));
+        wordRepository.delete(word);
+        return "OK";
+    }
+
+    @PostMapping("/learn")
+    public WordsForLearningResponse getWordsForLearning() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        List<Word> words = wordRepository.findByOwnerId(user.id);
+        List<Word> sortedWords = sortWordsStream(words);
+        List<Word> response = new ArrayList<>();
+        Map<Integer, Integer> requirements = Map.of(
+                6, 12,
+                8, 120,
+                10, 240,
+                11, 480
+        );
+        for (Word word : sortedWords) {
+            if (requirements.containsKey(word.masteryLevel)) {
+                int t = requirements.get(word.masteryLevel);
+                OffsetDateTime newTime = word.lastTimeStudied.plusHours(t);
+                if (OffsetDateTime.now().isAfter(newTime)) {
+                    response.add(word);
+                }
+            } else if (word.masteryLevel < 12) {
+                response.add(word);
+            }
+            if (response.size() == 10) {
+                break;
+            }
+        }
+        return new WordsForLearningResponse(response);
+
+
+
+    }
+    @CrossOrigin(origins = "*")
     @PostMapping("/translate")
     public String getTranslation(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
 
@@ -64,7 +127,7 @@ public class WordController {
 
     public String sendToGemini(@RequestBody Map<String, String> data) throws IOException, InterruptedException {
         System.out.println("bebra");
-        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=AIzaSyBXm6HT79AAZZUxSxtKKZpFtsrahLIc9Uw";
+        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=" + apiKey;
         String text = data.get("text");
         String fromLang = data.get("fromLang");
         String toLang = data.get("toLang");

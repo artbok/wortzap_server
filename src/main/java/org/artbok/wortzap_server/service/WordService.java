@@ -20,16 +20,15 @@ public class WordService {
 
 
     public List<Word> getWordsByOwnerAndLanguage(Long ownerId, String wordLanguage) {
-        return wordRepository.findByOwnerIdAndWordLanguage(ownerId, wordLanguage);
+        return wordRepository.findByOwnerIdAndWordLanguageOrderByIdAsc(ownerId, wordLanguage);
     }
+
     public List<Word> getWordsByOwner(Long ownerId) {
         return wordRepository.findByOwnerId(ownerId);
     }
-//    public List<User> getAllUsers() {
-//        return wordRepository.findAll();
-//    }
-//
-//    public void insertUser(User user) {
-//        wordRepository.save(user);
-//    }
+
+    public List<Word> getByOwnerIdOrderByIdDesc(Long ownerId) {
+        return wordRepository.findByOwnerIdOrderByIdAsc(ownerId);
+    }
 }
+

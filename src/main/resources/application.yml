@@ -33,6 +33,7 @@ app:
   api-key: ${API_KEY:DEFINE-YOUR-KEY}
   default: ${DEFAULT_LANG:ENG}
 server:
+  port: 62100
   servlet:
     encoding:
       charset: UTF-8

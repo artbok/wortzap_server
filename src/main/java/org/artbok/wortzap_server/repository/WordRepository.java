@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface WordRepository extends CrudRepository<Word, Long> {
-    List<Word> findByOwnerIdAndWordLanguage(Long ownerId, String wordLanguage);
+    List<Word> findByOwnerIdAndWordLanguageOrderByIdAsc(Long ownerId, String wordLanguage);
+    List<Word> findByOwnerIdOrderByIdAsc(Long ownerId);
     List<Word> findByOwnerId(Long ownerId);
 }

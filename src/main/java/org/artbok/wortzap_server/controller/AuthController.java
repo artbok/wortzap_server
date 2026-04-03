@@ -37,39 +37,41 @@ public class AuthController {
         return "WRONG_CREDENTIALS";
     }
 
-    @RequestMapping("/send-email-code")
-    @PostMapping
+    @PostMapping("/send-email-code")
     public String sendEmailCode(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
         User user = userRepository.findByEmail(email);
         if (user != null) {
             return "USER_ALREADY_EXISTS";
         }
+        String code;
         OffsetDateTime sevenMinutesAgo = OffsetDateTime.now().minusMinutes(7);
         Optional<TempCode> tmpCode = tempCodeRepository.findByEmailAndRequestDateAfter(email, sevenMinutesAgo);
         if (tmpCode.isEmpty()) {
             Random random = new Random();
-            String code = String.valueOf(random.nextInt(899999) + 100000);
+            code = String.valueOf(random.nextInt(899999) + 100000);
             TempCode tempCode = new TempCode(email, code, OffsetDateTime.now(ZoneOffset.UTC));
             tempCodeRepository.save(tempCode);
-            try {
-                SimpleMailMessage msg = new SimpleMailMessage();
-                msg.setFrom("help.sprechai@gmail.com");
-                msg.setTo(email);
-                msg.setSubject("Your SprechAI Login Code");
-                msg.setText("You've requested a login code for SprechAI. Please use the following code to access your account:\n\n" +
-                        code +
-                        "\n\nThis code is valid for a limited time. If you did not request this code, you can safely ignore this email.");
-                mailSender.send(msg);
-            } catch (Exception e) {
-                System.out.println(e);
-            }
+        } else {
+            code = tmpCode.get().code;
         }
+        try {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setFrom("help.sprechai@gmail.com");
+            msg.setTo(email);
+            msg.setSubject("Your SprechAI Login Code");
+            msg.setText("You've requested a login code for SprechAI. Please use the following code to access your account:\n\n" +
+                    code +
+                    "\n\nThis code is valid for a limited time. If you did not request this code, you can safely ignore this email.");
+            mailSender.send(msg);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
         return "SUCCESS";
     }
 
-    @RequestMapping("/register")
-    @PostMapping
+    @PostMapping("/register")
     public String register(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
         String password = requestBody.get("password");

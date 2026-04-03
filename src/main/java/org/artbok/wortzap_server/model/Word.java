@@ -1,6 +1,9 @@
 package org.artbok.wortzap_server.model;
 
 import jakarta.persistence.*;
+import org.springframework.context.annotation.Primary;
+
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "words")
@@ -36,6 +39,12 @@ public class Word {
     @Column
     public String translationPlural;
 
+    @Column
+    public int masteryLevel;
+
+    @Column
+    public OffsetDateTime lastTimeStudied;
+
     public Word() {}
     public Word(Long ownerId, String wordLanguage, String wordArticle, String word, String wordPlural, String translationLanguage, String translationArticle, String translation, String translationPlural) {
         this.ownerId = ownerId;
@@ -47,5 +56,6 @@ public class Word {
         this.translationArticle = translationArticle;
         this.translation = translation;
         this.translationPlural = translationPlural;
+        this.masteryLevel = 0;
     }
 }
